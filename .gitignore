@@ -1,0 +1,4 @@
+# .gitignore content
+node_modules/
+*.log
+.DS_Store
