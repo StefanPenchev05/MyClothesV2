@@ -1,5 +1,4 @@
 import dns from "dns";
-import { resolve } from "path";
 
 export class Validator {
   /**
@@ -36,5 +35,71 @@ export class Validator {
         }
       });
     });
+  }
+
+  /**
+   * Checks the if the value is valid username
+   *
+   * @param {string} value
+   * @returns {boolean}
+   */
+  static isUsername(value) {
+    if (value) {
+      return /^[a-zA-Z0-9_\-]/.test(value);
+    }
+    return false;
+  }
+
+  /**
+   * This function validates a password based on several criteria
+   *
+   * @param {string} value
+   * @returns {boolean | string}
+   */
+  static isPassword(value) {
+    if (!value.trim()) {
+      return "Password is required";
+    }
+
+    // Define the validation criteria
+    const validations = [
+      {
+        test: (password) => password.length >= 8,
+        error: "Password must be at least 8 characters long.",
+      },
+      {
+        test: (password) => /[A-Z]/.test(password),
+        error: "Password must contain at least one uppercase letter.",
+      },
+      {
+        test: (password) => /[a-z]/.test(password),
+        error: "Password must contain at least one lowercase letter.",
+      },
+      {
+        test: (password) => /[0-9]/.test(password),
+        error: "Password must contain at least one number.",
+      },
+      {
+        test: (password) =>
+          /[\!\@\#\$\%\^\&\*\(\)\_\+\-\=\[\]\{\}\;\:\'\"\<\>\,\.\?\/\~\`]/.test(
+            password
+          ),
+        error: "Password must contain at least one special character.",
+      },
+      {
+        test: (password) => !/(\w)\1\1/.test(password),
+        error:
+          "Password must not contain three repeating characters in a row (e.g., 'aaa' not allowed).",
+      },
+    ];
+
+    // Check each validation criteria
+    for (let i = 0; i < validations.length; i++) {
+      if (!validations[i].test(value.trim())) {
+        return validations[i].error;
+      }
+    }
+
+    return true;
   }
 }

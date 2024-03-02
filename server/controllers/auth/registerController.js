@@ -10,5 +10,15 @@ export async function registerController(req, res) {
   if (!isEmailValid) {
     return res.status(400).json({ message: "Email is not valid" });
   }
-  return res.status(200).json({ email });
+
+  if(!Validator.isUsername(username)){
+    return res.status(400).json({ message: "Username is not valid" });
+  }
+
+  const isPasswordValid = Validator.isPassword(password);
+  if(typeof isPasswordValid === "string"){
+    return res.status(400).json({ message: `${isPasswordValid}` });
+  }
+
+  return res.status(200).json({ email, username, password });
 }
