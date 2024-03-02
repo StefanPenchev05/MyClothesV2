@@ -38,3 +38,5 @@ const productSchema = new Schema({
     },
   ],
 });
+
+export const Products = model("Product", productSchema);
