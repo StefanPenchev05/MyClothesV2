@@ -7,6 +7,7 @@ import multer from "multer";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
+import { registerController } from "./controllers/auth/registerController.js";
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +31,9 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+
+/* REGISTER */
+app.post('/auth/register', registerController);
 
 /* MONGO SETUP */
 const PORT = process.env.PORT || 3000;
