@@ -2,6 +2,34 @@ import dns from "dns";
 
 export class Validator {
   /**
+   * Checks if the given first and last are valid
+   *
+   * @param {string} first
+   * @param {string} last
+   *
+   * @returns {boolean}
+   */
+  static isFirstAndLastName(first, last) {
+    if (first === undefined) {
+      return "First Name is required";
+    } else if (last === undefined) {
+      return "Last Name is required";
+    }
+    const name = first + last;
+
+    // Check if name is not empty
+    if (name.trim().length === 0) {
+      return "Name cannot be empty";
+    }
+
+    // Check if name only contains alphabetic characters
+    if (!/^[a-zA-Z]+$/.test(name)) {
+      return "Name can only contain alphabetic characters";
+    }
+
+    return true;
+  }
+  /**
    * Checks if the given value is valid email
    *
    * @param {string} value - This value to check
