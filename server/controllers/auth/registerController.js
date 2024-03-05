@@ -49,12 +49,15 @@ export async function registerController(req, res) {
   }
 
   try {
+    const salt = await bcrypt.genSalt(12);
+    const hashPassword = await bcrypt.hash(password, salt)
+    
     const newUser = new User({
       firstName,
       lastName,
       email,
       username,
-      password,
+      password: hashPassword,
     });
     await newUser.save();
     return res.status(200).json({ email, password, username });
