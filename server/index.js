@@ -49,3 +49,5 @@ mongoose
   }).catch((error) => {
     console.log(`The DataBase did not connect because ${error}`);
   });
+
+  export default app;
