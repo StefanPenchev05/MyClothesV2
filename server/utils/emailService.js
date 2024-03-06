@@ -11,7 +11,7 @@ export default function sendVerifyMail(email, token, username){
     try {
         // Define email options, including sender, recipient, subject, and message body
         const mailOptions = {
-            from: process.env.EMAIL,
+            from: process.env.NODEMAILER_EMAIL,
             to: email,
             subject: `Verify Email for username: ${username}`,
             html: `
@@ -27,8 +27,8 @@ export default function sendVerifyMail(email, token, username){
         const transporter = nodemailer.createTransport({
             service: 'gmail',             // Email service provider
             auth: {
-                user: process.env.EMAIL,  // Sender's email address
-                pass: process.env.PASSWORD // Sender's email password
+                user: process.env.NODEMAILER_EMAIL,  // Sender's email address
+                pass: process.env.NODEMAILER_PASSWORD // Sender's email password
             }
         });
 

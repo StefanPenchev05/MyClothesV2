@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import setEx from "../../utils/redisService.js"
+import setTempMemory from "../../utils/mongoTempMemoryService.js"
 import sendVerifyMail from "../../utils/emailService.js";
 
 import { User } from "../../models/User.js";
@@ -61,7 +61,7 @@ export async function registerController(req, res) {
     const verificationToken = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: '15m' });
 
     // Save the user data temporarily in Redis with a 15 minute expiry
-    await setEx(verificationToken, {
+    await setTempMemory(verificationToken, {
         firstName,
         lastName,
         email,
@@ -72,11 +72,12 @@ export async function registerController(req, res) {
         console.log('sending email...')
         sendVerifyMail(email, verificationToken, username);
     }).catch(err => {
-        return res.status(401).json({ message: err });
+        throw err;
     });
    
     return res.status(200).json({ email, username });
   } catch (err) {
+    console.log(err)
     if (err.errors.username) {
       const newUsername = await generateUniqueUsername(username);
       return res
