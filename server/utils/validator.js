@@ -68,7 +68,7 @@ export class Validator {
    */
   static isUsername(value) {
     if (value) {
-      return /^[a-zA-Z0-9_\-]/.test(value);
+      return /^[a-zA-Z0-9_\-]*$/.test(value);
     }
     return false;
   }
