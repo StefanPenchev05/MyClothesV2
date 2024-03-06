@@ -62,4 +62,34 @@ describe('Validator', () => {
             expect(Validator.isEmail('test@test.test')).rejects.toBe(false);
         });
     });
+
+    describe('isPassword', () => {
+        it('should return true when the password is valid', () => {
+            expect(Validator.isPassword('ValidPassword1!')).toBe(true);
+        });
+    
+        it('should return an error when the password is too short', () => {
+            expect(Validator.isPassword('Short1!')).toBe('Password must be at least 8 characters long.');
+        });
+    
+        it('should return an error when the password does not contain an uppercase letter', () => {
+            expect(Validator.isPassword('lowercase1!')).toBe('Password must contain at least one uppercase letter.');
+        });
+    
+        it('should return an error when the password does not contain a lowercase letter', () => {
+            expect(Validator.isPassword('UPPERCASE1!')).toBe('Password must contain at least one lowercase letter.');
+        });
+    
+        it('should return an error when the password does not contain a number', () => {
+            expect(Validator.isPassword('NoNumber!')).toBe('Password must contain at least one number.');
+        });
+    
+        it('should return an error when the password does not contain a special character', () => {
+            expect(Validator.isPassword('NoSpecialChar1')).toBe('Password must contain at least one special character.');
+        });
+    
+        it('should return an error when the password contains three repeating characters', () => {
+            expect(Validator.isPassword('aaaValid1!')).toBe('Password must not contain three repeating characters in a row (e.g., \'aaa\' not allowed).');
+        });
+    });
 });
