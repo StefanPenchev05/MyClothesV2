@@ -10,9 +10,9 @@ export class Validator {
    * @returns {boolean}
    */
   static isFirstAndLastName(first, last) {
-    if (first === undefined || first.length > 0) {
+    if (first === undefined || first.length === 0) {
       return "First Name is required";
-    } else if (last === undefined || last.length > 0) {
+    } else if (last === undefined || last.length === 0) {
       return "Last Name is required";
     }
     const name = first + last;

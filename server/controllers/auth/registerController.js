@@ -6,51 +6,41 @@ import { Validator } from "../../utils/validator.js";
 export async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
 
-  const isFirstAndLastNameValid = Validator.isFirstAndLastName(
-    firstName,
-    lastName
-  );
+  const errors = [];
+
+  const isFirstAndLastNameValid = Validator.isFirstAndLastName(firstName, lastName);
   if (typeof isFirstAndLastNameValid === "string") {
-    return res.status(400).json({ message: isFirstAndLastNameValid });
+    errors.push(isFirstAndLastNameValid);
   }
 
-  const isEmailValid = await Validator.isEmail(email)
-    .then(() => true)
-    .catch(() => false);
+  const isEmailValid = await Validator.isEmail(email).then(() => true).catch(() => false);
   if (!isEmailValid) {
-    return res.status(400).json({ message: "Email is not valid" });
+    errors.push("Email is not valid");
   }
 
   if (!Validator.isUsername(username)) {
-    return res.status(400).json({ message: "Username is not valid" });
+    errors.push("Username is not valid");
   }
 
   const isPasswordValid = Validator.isPassword(password);
   if (typeof isPasswordValid === "string") {
-    return res.status(400).json({ message: `${isPasswordValid}` });
+    errors.push(isPasswordValid);
   }
 
-  //check if the username and password are the same
   if (password === username) {
-    return res
-      .status(200)
-      .json({ message: "The password and username caanot be the same" });
+    errors.push("The password and username cannot be the same");
   }
 
-  //check if the password contains the username
-  if (
-    password
-      .replace(/[^a-zA-Z]+/g, "")
-      .includes(username.replace(/[^a-zA-Z]+/g, ""))
-  ) {
-    return res
-      .status(400)
-      .json({ message: "Password should not contain the username" });
+  if (password.replace(/[^a-zA-Z]+/g, "").includes(username.replace(/[^a-zA-Z]+/g, ""))) {
+    errors.push("Password should not contain the username");
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({ messages: errors });
   }
 
   try {
-    const salt = await bcrypt.genSalt(12);
-    const hashPassword = await bcrypt.hash(password, salt)
+    const hashPassword = await bcrypt.hash(password, 12);
     
     const newUser = new User({
       firstName,
@@ -60,18 +50,31 @@ export async function registerController(req, res) {
       password: hashPassword,
     });
     await newUser.save();
-    return res.status(200).json({ email, password, username });
+    return res.status(200).json({ email, username });
   } catch (err) {
     if (err.errors.username) {
-      const randomNumber = Math.floor(Math.random() * 100) + 1;
+      const randomNumber = await generateUniqueUsername(err.errors.username);
       return res
         .status(401)
         .json({
-          message:
-            "The user had already been taken here is a suggestion for new one: ",
+          message: "The user had already been taken here is a suggestions for new one: ",
           newUsername: `${err.errors.username.value}${randomNumber}`,
         });
     }
     return res.status(401).json({ message: err });
   }
+}
+
+
+async function generateUniqueUsername(username) {
+  let newUsername = username;
+  let userExists = true;
+
+  while (userExists) {
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+    newUsername = `${username}${randomNumber}`;
+    userExists = await User.exists({ username: newUsername });
+  }
+
+  return newUsername;
 }
