@@ -10,17 +10,12 @@ export class Validator {
    * @returns {boolean}
    */
   static isFirstAndLastName(first, last) {
-    if (first === undefined) {
+    if (first === undefined || first.length > 0) {
       return "First Name is required";
-    } else if (last === undefined) {
+    } else if (last === undefined || last.length > 0) {
       return "Last Name is required";
     }
     const name = first + last;
-
-    // Check if name is not empty
-    if (name.trim().length === 0) {
-      return "Name cannot be empty";
-    }
 
     // Check if name only contains alphabetic characters
     if (!/^[a-zA-Z]+$/.test(name)) {
