@@ -22,4 +22,30 @@ describe('Validator', () => {
         expect(Validator.isFirstAndLastName('Stefan', '3')).toBe("Name can only contain alphabetic characters")
        });
     });
+
+    describe('isEmail', () => {
+        it('should resolve the promise when the email is valid', () => {
+            expect(Validator.isEmail('test01@gmail.com')).resolves.toBe(true);
+        });
+
+        it('should reject the promise when the email is missing', () => {
+            expect(Validator.isEmail('')).rejects.toBe(false);
+        });
+
+        it('should reject the promise when the email do not pass the RegEx expression', () => {
+            expect(Validator.isEmail('invalid.email')).rejects.toBe(false);
+        });
+
+        it('should reject the promise when the email do not pass the RegEx expression', () => {
+            expect(Validator.isEmail('inv.alid@email')).rejects.toBe(false);
+        });
+
+        it('should reject the promise when the email do not pass the RegEx expression', () => {
+            expect(Validator.isEmail('test@test.')).rejects.toBe(false);
+        });
+
+        it('should reject the promise when the email does not have a valid domain', () => {
+            expect(Validator.isEmail('test@test.test')).rejects.toBe(false);
+        });
+    });
 });
