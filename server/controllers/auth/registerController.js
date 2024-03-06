@@ -1,8 +1,23 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { setEx } from "../../utils/redisService.js"
+import setEx from "../../utils/redisService.js"
+import sendVerifyMail from "../../utils/emailService.js";
+
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
+
+async function generateUniqueUsername(username) {
+  let newUsername = username;
+  let userExists = true;
+
+  while (userExists) {
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+    newUsername = `${username}${randomNumber}`;
+    userExists = await User.exists({ username: newUsername });
+  }
+
+  return newUsername;
+}
 
 export async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
@@ -45,14 +60,20 @@ export async function registerController(req, res) {
     
     const verificationToken = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: '15m' });
 
-    //Save the user data temporarily in Redis with a 15 minutes expiry
+    // Save the user data temporarily in Redis with a 15 minute expiry
     await setEx(verificationToken, {
-      firstName,
-      lastName,
-      email,
-      username,
-      password: hashPassword
-    }, 60 * 15);
+        firstName,
+        lastName,
+        email,
+        username,
+        password: hashPassword
+    }, 60 * 15).then(() => {
+        // Send the email with the link to verification
+        console.log('sending email...')
+        sendVerifyMail(email, verificationToken, username);
+    }).catch(err => {
+        return res.status(401).json({ message: err });
+    });
    
     return res.status(200).json({ email, username });
   } catch (err) {
@@ -67,18 +88,4 @@ export async function registerController(req, res) {
     }
     return res.status(401).json({ message: err });
   }
-}
-
-
-async function generateUniqueUsername(username) {
-  let newUsername = username;
-  let userExists = true;
-
-  while (userExists) {
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    newUsername = `${username}${randomNumber}`;
-    userExists = await User.exists({ username: newUsername });
-  }
-
-  return newUsername;
 }

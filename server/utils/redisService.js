@@ -12,9 +12,10 @@ const client = redis.createClient();
  * @returns {Promise<void>} 
  */
 
-export async function setEx(key, value, expiryInSec){
+export default async function setEx(key, value, expiryInSec){
     return new Promise((resolve, reject) => {
         client.setEx(key, expiryInSec, JSON.stringify(value), (err, reply) => {
+            console.log('here')
             if(err){
                 reject(err);
             }else{
