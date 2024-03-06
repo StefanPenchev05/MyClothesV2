@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { setEx } from "../../utils/redisService.js"
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
 
@@ -42,14 +43,17 @@ export async function registerController(req, res) {
   try {
     const hashPassword = await bcrypt.hash(password, 12);
     
-    const newUser = new User({
+    const verificationToken = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    //Save the user data temporarily in Redis with a 15 minutes expiry
+    await setEx(verificationToken, {
       firstName,
       lastName,
       email,
       username,
-      password: hashPassword,
-    });
-    await newUser.save();
+      password: hashPassword
+    }, 60 * 15);
+   
     return res.status(200).json({ email, username });
   } catch (err) {
     if (err.errors.username) {
