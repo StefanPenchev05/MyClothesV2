@@ -7,17 +7,20 @@ import nodemailer from "nodemailer"
  * @param {string} token 
  */
 
-export default function sendVerifyMail(email, token){
+export default function sendVerifyMail(email, token, username){
     try {
         // Define email options, including sender, recipient, subject, and message body
         const mailOptions = {
             from: process.env.EMAIL,
             to: email,
-            subject: 'Password Reset',
-            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n`
-                + `Please click on the following link, or paste this into your browser to complete the process:\n\n`
-                + `http://localhost:5500/user/reset-password/${token}\n\n`
-                + `If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+            subject: `Verify Email for username: ${username}`,
+            html: `
+                <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; font-family: Arial, sans-serif;">
+                    <h2 style="text-align: center; color: #333; font-size: 24px;">Welcome, ${username}!</h2>
+                    <p style="color: #555; font-size: 16px;">Please verify your email address by clicking the link below:</p>
+                    <a href="http://localhost:3000/verify?token=${token}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Verify Email</a>
+                </div> 
+            `,
         };
 
         // Create a transporter for sending emails using nodemailer
