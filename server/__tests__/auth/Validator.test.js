@@ -23,6 +23,20 @@ describe('Validator', () => {
        });
     });
 
+    describe('isUsername', () => {
+        it('should return true when the username is valid', () => {
+            expect(Validator.isUsername('valid_username')).toBe(true);
+        });
+
+        it('should return false when the username is invalid', () => {
+            expect(Validator.isUsername('invalid username')).toBe(false);
+        });
+
+        it('should return false when the username is missing', () => {
+            expect(Validator.isUsername('')).toBe(false);
+        });
+    });
+
     describe('isEmail', () => {
         it('should resolve the promise when the email is valid', () => {
             expect(Validator.isEmail('test01@gmail.com')).resolves.toBe(true);
