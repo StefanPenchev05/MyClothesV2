@@ -53,12 +53,12 @@ export async function registerController(req, res) {
     return res.status(200).json({ email, username });
   } catch (err) {
     if (err.errors.username) {
-      const randomNumber = await generateUniqueUsername(err.errors.username);
+      const newUsername = await generateUniqueUsername(username);
       return res
         .status(401)
         .json({
-          message: "The user had already been taken here is a suggestions for new one: ",
-          newUsername: `${err.errors.username.value}${randomNumber}`,
+          message: "The username has already been taken. Here is a suggestion for a new one: ",
+          newUsername,
         });
     }
     return res.status(401).json({ message: err });
