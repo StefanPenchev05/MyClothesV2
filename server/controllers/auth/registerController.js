@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid"
+
 import setTempMemory from "../../utils/mongoTempMemoryService.js"
 import sendVerifyMail from "../../utils/emailService.js";
 
@@ -63,11 +65,14 @@ export async function registerController(req, res) {
            req.connection.socket.remoteAddress;
            
     const hashPassword = await bcrypt.hash(password, 12);
+
+    //generate a UUID
+    const uuid = uuidv4();
     
-    const verificationToken = jwt.sign({username, ip}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const verificationToken = jwt.sign({uuid}, process.env.JWT_SECRET, { expiresIn: '15m' });
 
     // Save the user data temporarily in Redis with a 15 minute expiry
-    await setTempMemory(verificationToken, {
+    await setTempMemory(uuid, {
         firstName,
         lastName,
         email,
@@ -75,7 +80,6 @@ export async function registerController(req, res) {
         password: hashPassword
     }, 60 * 15).then(() => {
         // Send the email with the link to verification
-        console.log('sending email...')
         sendVerifyMail(email, verificationToken, username);
     }).catch(err => {
         throw err;
