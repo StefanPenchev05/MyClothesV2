@@ -56,9 +56,15 @@ export async function registerController(req, res) {
   }
 
   try {
+    //get the ip of the user
+    const ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+           req.connection.remoteAddress || 
+           req.socket.remoteAddress || 
+           req.connection.socket.remoteAddress;
+           
     const hashPassword = await bcrypt.hash(password, 12);
     
-    const verificationToken = jwt.sign({username}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const verificationToken = jwt.sign({username, ip}, process.env.JWT_SECRET, { expiresIn: '15m' });
 
     // Save the user data temporarily in Redis with a 15 minute expiry
     await setTempMemory(verificationToken, {
