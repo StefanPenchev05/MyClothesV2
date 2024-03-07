@@ -4,10 +4,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import multer from "multer";
-import path, { dirname } from "path";
+import path from "path";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
-import { registerController } from "./controllers/auth/registerController.js";
+
+/*ROUTERS */
+import authRouter from "./routes/auth.js"
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
@@ -32,8 +34,9 @@ const storage = multer.diskStorage({
   },
 });
 
-/* REGISTER */
-app.post('/auth/register', registerController);
+/* REGISTER ROUTER*/
+app.use('/auth',authRouter);
+
 
 /* MONGO SETUP */
 const PORT = process.env.PORT || 3000;

@@ -1,7 +1,23 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import setTempMemory from "../../utils/mongoTempMemoryService.js"
+import sendVerifyMail from "../../utils/emailService.js";
+
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
+
+async function generateUniqueUsername(username) {
+  let newUsername = username;
+  let userExists = true;
+
+  while (userExists) {
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+    newUsername = `${username}${randomNumber}`;
+    userExists = await User.exists({ username: newUsername });
+  }
+
+  return newUsername;
+}
 
 export async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
@@ -40,18 +56,34 @@ export async function registerController(req, res) {
   }
 
   try {
+    //get the ip of the user
+    const ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+           req.connection.remoteAddress || 
+           req.socket.remoteAddress || 
+           req.connection.socket.remoteAddress;
+           
     const hashPassword = await bcrypt.hash(password, 12);
     
-    const newUser = new User({
-      firstName,
-      lastName,
-      email,
-      username,
-      password: hashPassword,
+    const verificationToken = jwt.sign({username, ip}, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    // Save the user data temporarily in Redis with a 15 minute expiry
+    await setTempMemory(verificationToken, {
+        firstName,
+        lastName,
+        email,
+        username,
+        password: hashPassword
+    }, 60 * 15).then(() => {
+        // Send the email with the link to verification
+        console.log('sending email...')
+        sendVerifyMail(email, verificationToken, username);
+    }).catch(err => {
+        throw err;
     });
-    await newUser.save();
+   
     return res.status(200).json({ email, username });
   } catch (err) {
+    console.log(err)
     if (err.errors.username) {
       const newUsername = await generateUniqueUsername(username);
       return res
@@ -63,18 +95,4 @@ export async function registerController(req, res) {
     }
     return res.status(401).json({ message: err });
   }
-}
-
-
-async function generateUniqueUsername(username) {
-  let newUsername = username;
-  let userExists = true;
-
-  while (userExists) {
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    newUsername = `${username}${randomNumber}`;
-    userExists = await User.exists({ username: newUsername });
-  }
-
-  return newUsername;
 }
