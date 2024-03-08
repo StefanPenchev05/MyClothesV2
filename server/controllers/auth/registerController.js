@@ -7,6 +7,7 @@ import sendVerifyMail from "../../utils/emailService.js";
 
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
+import { Temp } from "../../models/Temp.js";
 
 async function generateUniqueUsername(username) {
   let newUsername = username;
@@ -15,7 +16,8 @@ async function generateUniqueUsername(username) {
   while (userExists) {
     const randomNumber = Math.floor(Math.random() * 100) + 1;
     newUsername = `${username}${randomNumber}`;
-    userExists = await User.exists({ username: newUsername });
+    userExists = await User.exists({ username: newUsername }) || await Temp.exists({'value.username': username }); 
+    console.log(userExists);
   }
 
   return newUsername;
@@ -31,13 +33,14 @@ export async function registerController(req, res) {
     errors.push(isFirstAndLastNameValid);
   }
 
-  const isEmailValid = await Validator.isEmail(email).then(() => true).catch(() => false);
-  if (!isEmailValid) {
-    errors.push("Email is not valid");
+  const isEmailValid = await Validator.isEmail(email).then(() => true).catch((err) => err);
+  if(typeof isEmailValid === "string"){
+    errors.push(isEmailValid);
   }
 
-  if (!Validator.isUsername(username)) {
-    errors.push("Username is not valid");
+  const isUseraNameValid = await Validator.isUsername(username).then(() => true).catch((err) => err);
+  if (typeof isUseraNameValid === "string") {
+    errors.push(isUseraNameValid);
   }
 
   const isPasswordValid = Validator.isPassword(password);
@@ -87,7 +90,6 @@ export async function registerController(req, res) {
    
     return res.status(200).json({ email, username });
   } catch (err) {
-    console.log(err)
     if (err.errors.username) {
       const newUsername = await generateUniqueUsername(username);
       return res
