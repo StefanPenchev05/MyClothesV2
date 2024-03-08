@@ -7,6 +7,6 @@ const authRouter = express.Router();
 /* REGISTER */
 authRouter.post('/register', registerController);
 /* VERIFY REGISTER USER */
-authRouter.post('/verify/:token', verifyUser);
+authRouter.get('/verify/:token', verifyUser);
 
 export default authRouter;

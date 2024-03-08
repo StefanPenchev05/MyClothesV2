@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 const TempSchema = new Schema({
-  key: String,
+  key: { type: String, index: true },
   value: Schema.Types.Mixed,
   expiresAt: { type: Date, expires: 0 },
 });

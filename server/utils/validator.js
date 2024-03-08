@@ -1,4 +1,5 @@
 import dns from "dns";
+import { Temp } from "../models/Temp.js";
 
 export class Validator {
   /**
@@ -28,13 +29,13 @@ export class Validator {
    * Checks if the given value is valid email
    *
    * @param {string} value - This value to check
-   * @returns {Promise<boolean>} True if the value is a valid email address, false otherwise.
+   * @returns {Promise<boolean | string>} True if the value is a valid email address, false otherwise.
    */
   static async isEmail(value) {
     return new Promise((resolve, reject) => {
       // Reject the promise if the value is not provided
       if (!value) {
-        reject(false);
+        reject("Email is not valid");
       }
 
       // Regular expression for email validation
@@ -43,17 +44,22 @@ export class Validator {
 
       // Reject the promise if the value is not a valid email
       if (!regEx.test(value)) {
-        reject(false);
+        reject("Email is not valid");
       }
 
       // Extract the domain from the email
       const domain = value.split("@")[1];
 
       // Check if the domain has DNS records
-      dns.lookup(domain, (err) => {
+      dns.lookup(domain, async (err) => {
         if (err) {
-          reject(false);
+          reject("Email is not valid");
         } else {
+          const userExists = await Temp.exists({ "value.email": value });
+          if (userExists) {
+            reject("That email is temporarily taken");
+          }
+
           resolve(true);
         }
       });
@@ -64,13 +70,13 @@ export class Validator {
    * Checks the if the value is valid username
    *
    * @param {string} value
-   * @returns {boolean}
+   * @returns {Promise<boolean | string>}
    */
   static isUsername(value) {
     if (value) {
       return /^[a-zA-Z0-9_\-]*$/.test(value);
     }
-    return false;
+      return ("Username is not valid");
   }
 
   /**
@@ -79,7 +85,7 @@ export class Validator {
    * @param {string} value
    * @returns {boolean | string}
    */
-  static isPassword(value) {
+  static async isPassword(value) {
     if (!value.trim()) {
       return "Password is required";
     }
