@@ -73,23 +73,10 @@ export class Validator {
    * @returns {Promise<boolean | string>}
    */
   static isUsername(value) {
-    return new Promise(async (resolve, reject) => {
-      if (value) {
-        const test = /^[a-zA-Z0-9_\-]*$/.test(value);
-        if (test) {
-          const userExists = await Temp.exists({ "value.username": value });
-          if (!userExists) {
-            resolve(true);
-          } else {
-            reject("That username is temporarily taken");
-          }
-        } else {
-          resolve("Username is not valid");
-        }
-      } else {
-        resolve("Username is not valid");
-      }
-    });
+    if (value) {
+      return /^[a-zA-Z0-9_\-]*$/.test(value);
+    }
+      return ("Username is not valid");
   }
 
   /**

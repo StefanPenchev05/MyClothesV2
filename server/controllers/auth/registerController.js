@@ -16,8 +16,7 @@ async function generateUniqueUsername(username) {
   while (userExists) {
     const randomNumber = Math.floor(Math.random() * 100) + 1;
     newUsername = `${username}${randomNumber}`;
-    userExists = await User.exists({ username: newUsername }) || await Temp.exists({'value.username': username }); 
-    console.log(userExists);
+    userExists = await User.exists({ username: newUsername }) || await Temp.exists({'value.username': newUsername }); 
   }
 
   return newUsername;
@@ -26,38 +25,38 @@ async function generateUniqueUsername(username) {
 export async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
 
-  const errors = [];
+  const inputErrors = [];
 
   const isFirstAndLastNameValid = Validator.isFirstAndLastName(firstName, lastName);
   if (typeof isFirstAndLastNameValid === "string") {
-    errors.push(isFirstAndLastNameValid);
+    inputErrors.push(isFirstAndLastNameValid);
   }
 
   const isEmailValid = await Validator.isEmail(email).then(() => true).catch((err) => err);
   if(typeof isEmailValid === "string"){
-    errors.push(isEmailValid);
+    inputErrors.push(isEmailValid);
   }
 
-  const isUseraNameValid = await Validator.isUsername(username).then(() => true).catch((err) => err);
+  const isUseraNameValid = Validator.isUsername(username);
   if (typeof isUseraNameValid === "string") {
-    errors.push(isUseraNameValid);
+    inputErrors.push(isUseraNameValid);
   }
 
   const isPasswordValid = Validator.isPassword(password);
   if (typeof isPasswordValid === "string") {
-    errors.push(isPasswordValid);
+    inputErrors.push(isPasswordValid);
   }
 
   if (password === username) {
-    errors.push("The password and username cannot be the same");
+    inputErrors.push("The password and username cannot be the same");
   }
 
   if (password.replace(/[^a-zA-Z]+/g, "").includes(username.replace(/[^a-zA-Z]+/g, ""))) {
-    errors.push("Password should not contain the username");
+    inputErrors.push("Password should not contain the username");
   }
 
-  if (errors.length > 0) {
-    return res.status(400).json({ messages: errors });
+  if (inputErrors.length > 0) {
+    return res.status(400).json({ messages: inputErrors });
   }
 
   try {
@@ -73,6 +72,17 @@ export async function registerController(req, res) {
     const uuid = uuidv4();
     
     const verificationToken = jwt.sign({uuid}, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    const tempUsername = await Temp.exists({'value.username': username});
+    if(tempUsername){
+      const error = new Error("Username is temporarily taken");
+      error.errors = {
+        username: {
+          message: "Username is temporarily taken"
+        }
+      };
+      throw error;
+    }
 
     // Save the user data temporarily in Redis with a 15 minute expiry
     await setTempMemory(uuid, {
