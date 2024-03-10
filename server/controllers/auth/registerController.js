@@ -8,6 +8,7 @@ import sendVerifyMail from "../../utils/emailService.js";
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
 import { Temp } from "../../models/Temp.js";
+import { getIO } from "../../sockets/index.js";
 
 async function generateUniqueUsername(username) {
   let newUsername = username;
@@ -68,12 +69,8 @@ export async function registerController(req, res) {
            
     const hashPassword = await bcrypt.hash(password, 12);
 
-    //generate a UUID
-    const uuid = uuidv4();
-    
-    const verificationToken = jwt.sign({uuid}, process.env.JWT_SECRET, { expiresIn: '15m' });
-
     const tempUsername = await Temp.exists({'value.username': username});
+
     if(tempUsername){
       const error = new Error("Username is temporarily taken");
       error.errors = {
@@ -84,8 +81,14 @@ export async function registerController(req, res) {
       throw error;
     }
 
+    //generate a UUID
+    const uuid = uuidv4();
+    
+    const verificationToken = jwt.sign({uuid}, process.env.JWT_SECRET, { expiresIn: '15m' });
+
     // Save the user data temporarily in Redis with a 15 minute expiry
     await setTempMemory(uuid, {
+        ip,
         firstName,
         lastName,
         email,
@@ -98,7 +101,9 @@ export async function registerController(req, res) {
         throw err;
     });
    
-    return res.status(200).json({ email, username });
+    const io = getIO();
+    //io.emit('verifiactionEmailSended', );
+
   } catch (err) {
     if (err.errors.username) {
       const newUsername = await generateUniqueUsername(username);

@@ -1,7 +1,7 @@
-// Import necessary modules
 import { User } from "../../models/User.js";
 import { Temp } from "../../models/Temp.js";
 import jwt from "jsonwebtoken";
+import { getIO } from "../../sockets/index.js";
 
 export default async function verifyUser(req, res) {
   try {
@@ -48,7 +48,8 @@ export default async function verifyUser(req, res) {
     await Temp.deleteOne({ key: decoded.uuid });
 
     // Send a success response
-    return res.status(200).json({ message: "Successfily verified" });
+    const io = getIO();
+    //io.emit()
   } catch (err) {
     // If an error occurred, log the error and send an error response
     return res.status(500).json({ message: "An error occurred" });
