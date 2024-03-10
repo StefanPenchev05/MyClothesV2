@@ -24,7 +24,7 @@ async function generateUniqueUsername(username) {
 
 export async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
-  console.log(firstName);
+
   const inputErrors = [];
 
   const isFirstAndLastNameValid = Validator.isFirstAndLastName(firstName, lastName);
