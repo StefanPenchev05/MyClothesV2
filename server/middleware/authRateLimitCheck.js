@@ -9,7 +9,6 @@ export default async function authRateLimitCheck(req, res, next){
     const tempIP = await Temp.exists({'value.ip': ip});
 
     if(!tempIP){
-        console.log('here');
         next();
     } else {
         return res.status(429).json({ message: "We have sended an email with verification to you" });

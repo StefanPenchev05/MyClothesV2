@@ -8,6 +8,7 @@ import sendVerifyMail from "../../utils/emailService.js";
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
 import { Temp } from "../../models/Temp.js";
+import { getIO } from "../../sockets/index.js";
 
 async function generateUniqueUsername(username) {
   let newUsername = username;
@@ -24,7 +25,6 @@ async function generateUniqueUsername(username) {
 
 export async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
-  console.log(firstName);
   const inputErrors = [];
 
   const isFirstAndLastNameValid = Validator.isFirstAndLastName(firstName, lastName);
@@ -100,7 +100,9 @@ export async function registerController(req, res) {
         throw err;
     });
    
-    return res.status(200).json({ email, username });
+    const io = getIO();
+    //io.emit('verifiactionEmailSended', );
+
   } catch (err) {
     if (err.errors.username) {
       const newUsername = await generateUniqueUsername(username);
