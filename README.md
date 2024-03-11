@@ -7,8 +7,11 @@
 
 Welcome to MyClothes, where creativity meets fashion! This application provides a platform for designers to showcase their clothing products, receive feedback through comments and likes, engage in real-time chat, and even get hired by clients who love their work.
 
+</br>
 
-![Logo](https://github.com/StefanPenchev05/MyClothesV2/blob/main/Logo%20for%20MyClothes.png)
+<div align=center>
+ <img width=250 src="https://github.com/StefanPenchev05/MyClothesV2/blob/main/Logo%20for%20MyClothes-Transparent.png"/>
+</div>
 
 
 ## Table of Contents
@@ -16,7 +19,7 @@ Welcome to MyClothes, where creativity meets fashion! This application provides 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
-- [Acknowledgements](#Acknowledgements)
+- [Acknowledgements](#acknowledgements)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -88,7 +91,7 @@ Development tools and libraries that greatly assisted in the development process
 We acknowledge and thank all the maintainers and contributors of these projects for their hard work and dedication.
 
 
-## Authors
+## Contributors
 
 - [@StefanPenchev05](https://www.github.com/octokatherine)
 - [@DivakovDev](https://github.com/DivakovDev)
