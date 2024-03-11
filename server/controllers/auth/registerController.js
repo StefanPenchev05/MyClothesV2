@@ -68,7 +68,7 @@ export default async function registerController(req, res) {
            
     const hashPassword = await bcrypt.hash(password, 12);
 
-    const tempUsername = await Temp.exists({'value.username': username});
+    const tempUsername = await Temp.exists({'value.username': { $eq: username }});
 
     if(tempUsername){
       const error = new Error("Username is temporarily taken");
