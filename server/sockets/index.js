@@ -8,10 +8,15 @@ let io;
 export function initializeSocketIO(httpServer) {
   io = new Server(httpServer);
 
- const authNamespace = io.of('/auth');
+  io.on('connection', () => {
+    console.log("New user connect");
+  })
+
+ const authNamespace = io.of('/auth/');
  initializeAuthNamespace(authNamespace);
 }
 
+/** @returns {Server} */
 export const getIO = () => {
   if (!io) {
     throw new Error("Socket.io not initialized");
