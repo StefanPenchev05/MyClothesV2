@@ -8,7 +8,6 @@ import sendVerifyMail from "../../utils/emailService.js";
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
 import { Temp } from "../../models/Temp.js";
-import { getIO } from "../../sockets/index.js";
 
 async function generateUniqueUsername(username) {
   let newUsername = username;
@@ -23,7 +22,7 @@ async function generateUniqueUsername(username) {
   return newUsername;
 }
 
-export async function registerController(req, res) {
+export default async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
 
   const inputErrors = [];
