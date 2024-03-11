@@ -7,6 +7,7 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
+import RateLimit from "express-rate-limit";
 
 /* SOCKET */
 import { initializeSocketIO } from "./sockets/index.js";
@@ -18,14 +19,19 @@ import authRouter from "./routes/auth.js";
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const limiter = RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // max 100 requests per windowMs
+});
 dotenv.config();
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ limit: "30mb", extended: true }));
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-app.use(morgan("common"));
 app.use(cors());
+app.use(limiter);
+app.use(helmet());
+app.use(express.json());
+app.use(morgan("common"));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use("assets", express.static(path.join(__dirname, "public/assets")));
 
 /* FILE STORAGE */
