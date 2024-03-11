@@ -20,6 +20,7 @@ Welcome to MyClothes, where creativity meets fashion! This application provides 
 - [Acknowledgements](#Acknowledgements)
 - [Contributors](#contributors)
 - [License](#license)
+
 ## Installation
 
  ```bash
@@ -31,25 +32,25 @@ Welcome to MyClothes, where creativity meets fashion! This application provides 
  ```
 ## Usage
 
-This section covers how to run both the Express.js server and the Next.js frontend application.
+Effortlessly kickstart the MyClothes application by launching both the Express.js backend and Next.js frontend with a few simple commands. Follow the instructions below to bring the creativity and fashion of MyClothes to life on your local machine.
 
 ### Running the Express Server
 
-To start the Express server, navigate to the root directory of your backend project in your terminal and run the following command:
+Navigate to the `server` directory to awaken the backend spirit of MyClothes. Use the following commands to start the Express.js server, which breathes life into our platform's backend functionalities:
 
 ```bash
-cd ./server
-npm run start
+cd server  # Step into the heart of our backend
+npm run start  # Summon the Express.js server into action
 ```
 
-### Running the Next Server
+### Running the NextJS Server
 
 To start the NextJS server, navigate to the root directory of your frontend project in your terminal and run the following command:
 
 ```bash
-cd ./client
-npm run build
-npm run start
+cd client  # Dive into the realm of our frontend
+npm run build  # Architect the foundation of your Next.js application
+npm run start  # Illuminate the frontend spectacle
 ```
 
 ## Features
