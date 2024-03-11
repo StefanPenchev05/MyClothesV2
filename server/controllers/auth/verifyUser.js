@@ -48,8 +48,12 @@ export default async function verifyUser(req, res) {
     await Temp.deleteOne({ key: decoded.uuid });
 
     // Send a success response
+    // Get the Socket.IO server instance
     const io = getIO();
-    //io.emit()
+
+    // Emit a 'verificationComplete' event to the client associated with the decoded token
+    // The event data includes a 'verified' property set to true
+    io.to(decoded.uuid).emit('verificationComplete', { verified: true });
   } catch (err) {
     // If an error occurred, log the error and send an error response
     return res.status(500).json({ message: "An error occurred" });

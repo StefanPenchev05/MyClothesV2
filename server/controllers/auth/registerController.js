@@ -100,9 +100,8 @@ export async function registerController(req, res) {
     }).catch(err => {
         throw err;
     });
-   
-    const io = getIO();
-    //io.emit('verifiactionEmailSended', );
+
+    return res.status(200).json({message: "Waiting for you to verify with link sended to your email"})
 
   } catch (err) {
     if (err.errors.username) {
