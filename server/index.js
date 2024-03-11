@@ -4,10 +4,16 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import multer from "multer";
-import path, { dirname } from "path";
+import path from "path";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
-import { registerController } from "./controllers/auth/registerController.js";
+
+/* SOCKET */
+import { initializeSocketIO } from "./sockets/index.js";
+import { createServer } from "http";
+
+/* ROUTERS */
+import authRouter from "./routes/auth.js";
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
@@ -32,20 +38,25 @@ const storage = multer.diskStorage({
   },
 });
 
-/* REGISTER */
-app.post('/auth/register', registerController);
+/* REGISTER ROUTER*/
+app.use("/auth", authRouter);
 
 /* MONGO SETUP */
 const PORT = process.env.PORT || 3000;
-console.log(process.env.MONGO_URL);
-mongoose
-  .connect(process.env.MONGO_URL, {
+
+mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   })
   .then(() => {
-    app.listen(PORT, () => {
+    const httpServer = createServer(app);
+    initializeSocketIO(httpServer);
+
+    httpServer.listen(PORT, () => {
       console.log("Server is running on port " + PORT);
     });
-  }).catch((error) => {
+  })
+  .catch((error) => {
     console.log(`The DataBase did not connect because ${error}`);
   });
+
+export default app;
