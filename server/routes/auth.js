@@ -1,7 +1,13 @@
-import { registerController } from "../controllers/auth/registerController.js";
+import express from "express";
+
+/* REGISTER */
+import registerController from "../controllers/auth/registerController.js";
 import authRateLimitCheck from "../middleware/authRateLimitCheck.js";
 import verifyUser from "../controllers/auth/verifyUser.js";
-import express from "express";
+
+/* LOGIN */
+import LoginController from "../controllers/auth/loginController.js"
+
 
 const authRouter = express.Router();
 
@@ -9,5 +15,8 @@ const authRouter = express.Router();
 authRouter.post('/register', authRateLimitCheck, registerController);
 /* VERIFY REGISTER USER */
 authRouter.get('/verify/:token', verifyUser);
+
+/* LOGIN */
+authRouter.post('/login', LoginController);
 
 export default authRouter;
