@@ -73,7 +73,7 @@ export class Validator {
    * @returns {Promise<boolean | string>}
    */
   static isUsername(value) {
-    if (value) {
+    if (value && value.length > 0) {
       return /^[a-zA-Z0-9_\-]*$/.test(value);
     }
       return ("Username is not valid");
