@@ -8,6 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
 import RateLimit from "express-rate-limit";
+import session from "express-session";
 
 /* SOCKET */
 import { initializeSocketIO } from "./sockets/index.js";
@@ -28,6 +29,12 @@ const app = express();
 app.use(cors());
 app.use(limiter);
 app.use(helmet());
+app.use(session({
+  secret: process.env.SESSION_SECTER,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {secure: false}
+}));
 app.use(express.json());
 app.use(morgan("common"));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
