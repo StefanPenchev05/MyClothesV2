@@ -1,8 +1,19 @@
-import { User } from "../../models/User";
+import { User } from "../../models/User.js";
 import bcrypt from "bcrypt";
 
 export default async function LoginController(req,res){
     const { usernameOrEmail, password } = req.body;
+
+    // Check if the username or email field is empty
+    if(usernameOrEmail.length <= 0){
+        // If it is, return a 401 status code (Unauthorized) and a message
+        return res.status(401).json({message: "Email or Username cannot be empty"});
+    } 
+    // Check if the password field is empty
+    else if(password.length <= 0){
+        // If it is, return a 401 status code (Unauthorized) and a message
+        return res.status(401).json({message: "Password cannot be empty"});
+    }
 
     try{
         //search for a user by either username or email
