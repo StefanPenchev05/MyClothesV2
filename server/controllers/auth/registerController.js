@@ -24,6 +24,7 @@ async function generateUniqueUsername(username) {
 
 export default async function registerController(req, res) {
   const { firstName, lastName, email, username, password } = req.body;
+  console.log(username)
 
   const inputErrors = [];
 
