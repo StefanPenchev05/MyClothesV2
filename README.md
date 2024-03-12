@@ -2,6 +2,7 @@
 # MyClothes
 
 ![GitHub Release](https://img.shields.io/github/v/release/StefanPenchev05/MyClothesV2)
+![GitHub Tag](https://img.shields.io/github/v/tag/StefanPenchev05/MyClothesV2)
 ![License](https://img.shields.io/github/license/StefanPenchev05/MyClothesV2?style=flat-square)
 
 
