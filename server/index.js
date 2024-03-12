@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 import morgan from "morgan";
 import RateLimit from "express-rate-limit";
 import session from "express-session";
+import csrf from "lusca"
 
 /* SOCKET */
 import { initializeSocketIO } from "./sockets/index.js";
@@ -43,6 +44,7 @@ app.use(
 );
 app.use(express.json());
 app.use(morgan("common"));
+app.use(csrf());
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use("assets", express.static(path.join(__dirname, "public/assets")));
