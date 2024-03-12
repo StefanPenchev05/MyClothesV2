@@ -1,9 +1,11 @@
 
 # MyClothes
 
-![Build Status](https://img.shields.io/travis/com/StefanPenchev05/MyClothesV2/master?style=flat-square)
+![GitHub Release](https://img.shields.io/github/v/release/StefanPenchev05/MyClothesV2)
+![GitHub Tag](https://img.shields.io/github/v/tag/StefanPenchev05/MyClothesV2)
 ![License](https://img.shields.io/github/license/StefanPenchev05/MyClothesV2?style=flat-square)
-![Version](https://img.shields.io/github/package-json/v/StefanPenchev05/MyClothesV2?style=flat-square)
+
+
 
 Welcome to MyClothes, where creativity meets fashion! This application provides a platform for designers to showcase their clothing products, receive feedback through comments and likes, engage in real-time chat, and even get hired by clients who love their work.
 
