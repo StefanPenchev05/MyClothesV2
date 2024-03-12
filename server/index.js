@@ -34,6 +34,11 @@ const app = express();
 app.use(cors());
 app.use(limiter);
 app.use(helmet());
+app.use(express.json());
+app.use(morgan("common"));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+app.use(csrf());
 app.use(
   session({
     secret: process.env.SESSION_SECTER,
@@ -42,11 +47,6 @@ app.use(
     cookie: { secure: true },
   })
 );
-app.use(express.json());
-app.use(morgan("common"));
-app.use(csrf());
-app.use(express.urlencoded({ limit: "30mb", extended: true }));
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use("assets", express.static(path.join(__dirname, "public/assets")));
 
 /* FILE STORAGE */
