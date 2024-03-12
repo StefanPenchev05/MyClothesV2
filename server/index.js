@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
 import RateLimit from "express-rate-limit";
@@ -12,12 +13,15 @@ import session from "express-session";
 
 /* SOCKET */
 import { initializeSocketIO } from "./sockets/index.js";
-import { createServer } from "http";
+import { createServer } from "https";
 
 /* ROUTERS */
 import authRouter from "./routes/auth.js";
 
 /* CONFIGURATIONS */
+const privateKey = fs.readFileSync("./cert/localhost.key", "utf-8");
+const certificate = fs.readFileSync("./cert/localhost.crt", "utf-8");
+const credentials = { key: privateKey, cert: certificate };
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const limiter = RateLimit({
@@ -29,12 +33,14 @@ const app = express();
 app.use(cors());
 app.use(limiter);
 app.use(helmet());
-app.use(session({
-  secret: process.env.SESSION_SECTER,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {secure: false}
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECTER,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true },
+  })
+);
 app.use(express.json());
 app.use(morgan("common"));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
@@ -57,14 +63,15 @@ app.use("/auth", authRouter);
 /* MONGO SETUP */
 const PORT = process.env.PORT || 3000;
 
-mongoose.connect(process.env.MONGO_URL, {
+mongoose
+  .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   })
   .then(() => {
-    const httpServer = createServer(app);
-    initializeSocketIO(httpServer);
+    const httpsServer = createServer(credentials, app);
+    initializeSocketIO(httpsServer);
 
-    httpServer.listen(PORT, () => {
+    httpsServer.listen(PORT, () => {
       console.log("Server is running on port " + PORT);
     });
   })
