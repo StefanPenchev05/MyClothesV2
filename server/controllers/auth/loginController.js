@@ -1,4 +1,5 @@
 import { User } from "../../models/User.js";
+import { Settings } from "../../models/Settings.js";
 import bcrypt from "bcrypt";
 
 /**
@@ -43,6 +44,9 @@ export default async function LoginController(req,res){
         if(rememberMe){
             req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000;
         }
+
+        // Fetch the user's settings
+        const userSettings = await Settings.findOne({userId : user._id});
 
         // Set the user's ID in the session. This will persist across requests
         // as long as the session is active. You can use this to check if the user is logged in.

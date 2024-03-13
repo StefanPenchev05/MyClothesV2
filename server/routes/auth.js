@@ -8,15 +8,18 @@ import verifyUser from "../controllers/auth/verifyUser.js";
 /* LOGIN */
 import LoginController from "../controllers/auth/loginController.js"
 
+/* SHARED MIDDLEWARE */
+import parseUserAgent from "../middleware/parseUserAgent.js";
+
 
 const authRouter = express.Router();
 
 /* REGISTER */
-authRouter.post('/register', authRateLimitCheck, registerController);
+authRouter.post('/register', authRateLimitCheck, parseUserAgent, registerController);
 /* VERIFY REGISTER USER */
 authRouter.get('/verify/:token', verifyUser);
 
 /* LOGIN */
-authRouter.post('/login', LoginController);
+authRouter.post('/login', parseUserAgent, LoginController);
 
 export default authRouter;

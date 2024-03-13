@@ -3,7 +3,8 @@ import {Schema, model} from "mongoose";
 const settingsSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        index: true
     },
     general: {
         theme: {
