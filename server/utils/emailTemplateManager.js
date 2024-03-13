@@ -26,6 +26,8 @@ async function convertTailWindIntoCss(tailwindConfig, tailwindSourcePath){
     // The processor will convert the Tailwind CSS in the HTML into regular CSS
     const result = await processor.process(tailwindSource, { from: undefined });
 
+    console.log(result.css);
+
     // Return the processed CSS
     // This CSS can now be used in your application
     return result.css
@@ -67,8 +69,8 @@ export function generateTemplate(templateName, data){
                 }else{
                     // If the style compilator is Tailwind CSS, apply Tailwind CSS styles
                     if(styleCompilator === 'tailwind'){
-                        const tailwindConfig = path.resolve(__dirname, `../emailTemplates/styles/tailwind.config.js`);
-                        const tailwindSourcePath = path.resolve(__dirname, '../emailTemplates/styles/main.css');
+                        const tailwindConfig = path.resolve(__dirname, `../tailwind.config.js`);
+                        const tailwindSourcePath = path.resolve(__dirname, '../main.css');
                         const css = await convertTailWindIntoCss(tailwindConfig, tailwindSourcePath);
                         const inlineHtml = juice.inlineContent(str,css);
                         resolve(inlineHtml);

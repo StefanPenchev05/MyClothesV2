@@ -91,26 +91,32 @@ export default async function registerController(req, res) {
     const uuid = uuidv4();
     const verificationToken = jwt.sign({uuid}, process.env.JWT_SECRET, { expiresIn: '15m' });
 
+    const emailTemplate = await generateTemplate("verifyRegisterUser", {verificationToken, username})
+
+    console.log(emailTemplate);
+
+    sendMail(email, "User Verification", emailTemplate);
+
     // Temporarily store the user's data in Redis with a 15 minute expiry
     // Then send a verification email to the user
-    await setTempMemory(uuid, {
-        ip,
-        userAgent,
-        browser,
-        operatingSystem,
-        deviceType,
-        firstName,
-        lastName,
-        email,
-        username,
-        password: hashPassword
-    }, 60 * 15).then(async() => {
-        const emailTemplate = await generateTemplate("verifyRegisterUser", {verificationToken, username})
+    // await setTempMemory(uuid, {
+    //     ip,
+    //     userAgent,
+    //     browser,
+    //     operatingSystem,
+    //     deviceType,
+    //     firstName,
+    //     lastName,
+    //     email,
+    //     username,
+    //     password: hashPassword
+    // }, 60 * 15).then(async() => {
+    //     const emailTemplate = await generateTemplate("verifyRegisterUser", {verificationToken, username})
 
-        sendMail(email, "User Verification", emailTemplate);
-    }).catch(err => {
-        throw err;
-    });
+    //     sendMail(email, "User Verification", emailTemplate);
+    // }).catch(err => {
+    //     throw err;
+    // });
 
     // If everything is successful, return a 200 status code and a success message
     // and tells the client to await for veriification sent via email
