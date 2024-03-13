@@ -1,7 +1,9 @@
+import jwt from "jsonwebtoken";
+
 import { User } from "../../models/User.js";
 import { Temp } from "../../models/Temp.js";
-import jwt from "jsonwebtoken";
 import { getIO } from "../../sockets/index.js";
+import { Settings } from "../../models/Settings.js";
 
 export default async function verifyUser(req, res) {
   try {
@@ -42,7 +44,28 @@ export default async function verifyUser(req, res) {
       username: tempUserData.username,
       password: tempUserData.password,
     });
+
+    // Save the new user
     await newUser.save();
+    
+    // Create a new user settings with the user's ID and account activity
+    const newUserSettings = new Settings({
+      userId: newUser._id,
+      security: {
+        accountActivity:[{
+          ipAddress: tempUserData.ip,
+          device:{
+            userAgent: tempUserData.userAgent,
+            browser: tempUserData.browser,
+            operatingSystem: tempUserData.operatingSystem,
+            deviceType: tempUserData.deviceType
+          }
+        }]
+      }
+    });
+
+    // Save the new user settings
+    await newUserSettings.save();
 
     // Delete the temporary user data
     await Temp.deleteOne({ key: decoded.uuid });

@@ -93,7 +93,12 @@ const settingsSchema = new Schema({
             device: {
                 userAgent: String,
                 browser: String,
-                operatingSystem: String
+                operatingSystem: String,
+                deviceType: {
+                    type: String,
+                    enum: ["isMobile", "isDesktop", "undefined"],
+                    default: "undefined"
+                }
             }
         }],
     }

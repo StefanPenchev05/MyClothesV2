@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid"
+import useragent from "useragent"
 
 import setTempMemory from "../../utils/mongoTempMemoryService.js"
 import sendVerifyMail from "../../utils/emailService.js";
@@ -72,6 +73,25 @@ export default async function registerController(req, res) {
            req.connection.remoteAddress || 
            req.socket.remoteAddress || 
            req.connection.socket.remoteAddress;
+    
+    //Parse the User-Agent string
+    const agent = useragent.parse(req.headers['user-agent']);
+    const userAgent = agent.toString(); // Full user-agent string
+    const browser = agent.toAgent(); // Browser name and version
+    const operatingSystem = agent.os.toString(); // Operating system name and version
+    const deviceType = agent.os.family; // Get the operating system from the parsed user agent
+
+    // Check if the operating system matches any of the common mobile operating systems
+    if(deviceType.match(/Android|iOS|Windows Phone/i)){
+      // If it does, set deviceType to "isMobile"
+      deviceType = "isMobile";
+    }else if(deviceType.match(/Windows NT|Mac OS X|Linux/i)){
+      // If it doesn't match mobile but matches common desktop operating systems, set deviceType to "isDesktop"
+      deviceType = "isDesktop";
+    }else{
+      // If it doesn't match either mobile or desktop, set deviceType to "undefined"
+      deviceType = "undefined";
+    }
            
     // Hash the user's password
     const hashPassword = await bcrypt.hash(password, 12);
@@ -97,6 +117,10 @@ export default async function registerController(req, res) {
     // Then send a verification email to the user
     await setTempMemory(uuid, {
         ip,
+        userAgent,
+        browser,
+        operatingSystem,
+        deviceType,
         firstName,
         lastName,
         email,
