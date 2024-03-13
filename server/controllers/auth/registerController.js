@@ -80,7 +80,7 @@ export default async function registerController(req, res) {
     const userAgent = agent.toString(); // Full user-agent string
     const browser = agent.toAgent(); // Browser name and version
     const operatingSystem = agent.os.toString(); // Operating system name and version
-    const deviceType = agent.os.family; // Get the operating system from the parsed user agent
+    let deviceType = agent.os.family; // Get the operating system from the parsed user agent
 
     // Check if the operating system matches any of the common mobile operating systems
     if(deviceType.match(/Android|iOS|Windows Phone/i)){
