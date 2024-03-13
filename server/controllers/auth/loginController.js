@@ -1,13 +1,14 @@
+import bcrypt from "bcrypt";
+
 import { User } from "../../models/User.js";
 import { Settings } from "../../models/Settings.js";
-import bcrypt from "bcrypt";
+import { encrypt } from "../../utils/securityUtils.js";
 
 /**
  * 
  * @param {Request} req 
  * @param {Response} res 
  */
-
 export default async function LoginController(req,res){
     const { usernameOrEmail, password, rememberMe } = req.body;
 
@@ -47,6 +48,33 @@ export default async function LoginController(req,res){
 
         // Fetch the user's settings
         const userSettings = await Settings.findOne({userId : user._id});
+
+        // Check if user settings exist
+        if(!userSettings){
+            // If not, throw an error
+            throw new Error();
+        }
+
+        // Get the two-factor authentication settings
+        const twoFactorAuth = userSettings.security.twoFactorAuth;
+
+        // Check if two-factor authentication is enabled
+        if(twoFactorAuth.enabled){
+
+            // Encrypt the user's ID
+            const encryptedUserId = encrypt(user._id);
+
+            // If two-factor authentication is required, return a response indicating that
+            // an email with a code has been sent and the user can enter it
+            return res.status(200).json({
+                // Indicate that two-factor authentication is required and make the client to await and join into socket room
+                twoFactorAuth: true, 
+                // Provide a message to the user
+                message : "We have sent an email with a code, you can enter it here",
+                // Include the encrypted user ID in the response in order to connect to the socket room
+                encryptedUserId
+            });
+        }
 
         // Set the user's ID in the session. This will persist across requests
         // as long as the session is active. You can use this to check if the user is logged in.

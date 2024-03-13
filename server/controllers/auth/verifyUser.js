@@ -25,8 +25,6 @@ export default async function verifyUser(req, res) {
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    console.log(decoded);
-
     let tempUserData;
     try{
       // Find the temporary user data associated with the token
