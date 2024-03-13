@@ -86,7 +86,7 @@ export class Validator {
    * @returns {boolean | string}
    */
   static async isPassword(value) {
-    if (!value.trim()) {
+    if (!value) {
       return "Password is required";
     }
 
