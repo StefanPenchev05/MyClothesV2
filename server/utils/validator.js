@@ -55,7 +55,7 @@ export class Validator {
         if (err) {
           reject("Email is not valid");
         } else {
-          const userExists = await Temp.exists({ "value.email": value });
+          const userExists = await Temp.exists({ "value.email": { $eq: value} });
           if (userExists) {
             reject("That email is temporarily taken");
           }

@@ -1,3 +1,5 @@
+import { Temp } from "../models/Temp.js";
+
 /**
  * Sets a temporary memory in the database.
  * @param {string} key - The key of the memory.

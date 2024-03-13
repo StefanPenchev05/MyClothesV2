@@ -28,6 +28,7 @@ async function generateUniqueUsername(username) {
 export default async function registerController(req, res) {
   // Extract user details from the request body
   const { firstName, lastName, email, username, password } = req.body;
+  console.log(username)
 
   // Array to store any validation errors
   const inputErrors = [];
@@ -97,7 +98,7 @@ export default async function registerController(req, res) {
     const hashPassword = await bcrypt.hash(password, 12);
 
     // Check if the username is already in use in the Temp collection
-    const tempUsername = await Temp.exists({'value.username': username});
+    const tempUsername = await Temp.exists({'value.username': { $eq: username }});
 
     if(tempUsername){
       const error = new Error("Username is temporarily taken");

@@ -47,9 +47,7 @@ export default async function LoginController(req,res){
         // Set the user's ID in the session. This will persist across requests
         // as long as the session is active. You can use this to check if the user is logged in.
         req.session.user = user._id;
-
-        // Send a 200 status code (OK) and a success message to the client.
-        // This lets the client know that the login was successful.
+      
         return res.status(200).json({message: "Successfully logged in user!"});
 
     }catch(err){
