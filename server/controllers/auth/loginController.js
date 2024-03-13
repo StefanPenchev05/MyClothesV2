@@ -1,8 +1,14 @@
 import { User } from "../../models/User.js";
 import bcrypt from "bcrypt";
 
+/**
+ * 
+ * @param {Request} req 
+ * @param {Response} res 
+ */
+
 export default async function LoginController(req,res){
-    const { usernameOrEmail, password } = req.body;
+    const { usernameOrEmail, password, rememberMe } = req.body;
 
     // Check if the username or email field is empty
     if(usernameOrEmail.length <= 0){
@@ -33,6 +39,18 @@ export default async function LoginController(req,res){
         if(!passwordMatch){
             return res.status(401).json({ message: "Incorrect password"});
         }
+
+        if(rememberMe){
+            req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000;
+        }
+
+        // Set the user's ID in the session. This will persist across requests
+        // as long as the session is active. You can use this to check if the user is logged in.
+        req.session.user = user._id;
+
+        // Send a 200 status code (OK) and a success message to the client.
+        // This lets the client know that the login was successful.
+        return res.status(200).json({message: "Successfully logged in user!"});
 
     }catch(err){
         return res.status(500).json({ message: "An error occurred" });

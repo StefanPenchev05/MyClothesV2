@@ -38,6 +38,8 @@ const storage = multer.diskStorage({
   },
 });
 
+app.get('/', (req,res) => {})
+
 /* REGISTER ROUTER*/
 app.use("/auth", authRouter);
 
