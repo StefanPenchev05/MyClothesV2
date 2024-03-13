@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid"
+import useragent from "useragent"
 
 import setTempMemory from "../../utils/mongoTempMemoryService.js"
 import sendVerifyMail from "../../utils/emailService.js";
@@ -9,6 +10,8 @@ import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
 import { Temp } from "../../models/Temp.js";
 
+// This function generates a unique username by appending a random number to the provided username
+// It checks both the User and Temp collections to ensure the username is unique
 async function generateUniqueUsername(username) {
   let newUsername = username;
   let userExists = true;
@@ -23,11 +26,14 @@ async function generateUniqueUsername(username) {
 }
 
 export default async function registerController(req, res) {
+  // Extract user details from the request body
   const { firstName, lastName, email, username, password } = req.body;
   console.log(username)
 
+  // Array to store any validation errors
   const inputErrors = [];
 
+  // Validate each input field and add any error messages to the inputErrors array
   const isFirstAndLastNameValid = Validator.isFirstAndLastName(firstName, lastName);
   if (typeof isFirstAndLastNameValid === "string") {
     inputErrors.push(isFirstAndLastNameValid);
@@ -48,6 +54,7 @@ export default async function registerController(req, res) {
     inputErrors.push(isPasswordValid);
   }
 
+  // Check if password and username are the same or if password contains the username
   if (password === username) {
     inputErrors.push("The password and username cannot be the same");
   }
@@ -56,19 +63,41 @@ export default async function registerController(req, res) {
     inputErrors.push("Password should not contain the username");
   }
 
+  // If there are any validation errors, return a 400 status code and the error messages
   if (inputErrors.length > 0) {
     return res.status(400).json({ messages: inputErrors });
   }
 
   try {
-    //get the ip of the user
+    // Get the user's IP address
     const ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
            req.connection.remoteAddress || 
            req.socket.remoteAddress || 
            req.connection.socket.remoteAddress;
+    
+    //Parse the User-Agent string
+    const agent = useragent.parse(req.headers['user-agent']);
+    const userAgent = agent.toString(); // Full user-agent string
+    const browser = agent.toAgent(); // Browser name and version
+    const operatingSystem = agent.os.toString(); // Operating system name and version
+    const deviceType = agent.os.family; // Get the operating system from the parsed user agent
+
+    // Check if the operating system matches any of the common mobile operating systems
+    if(deviceType.match(/Android|iOS|Windows Phone/i)){
+      // If it does, set deviceType to "isMobile"
+      deviceType = "isMobile";
+    }else if(deviceType.match(/Windows NT|Mac OS X|Linux/i)){
+      // If it doesn't match mobile but matches common desktop operating systems, set deviceType to "isDesktop"
+      deviceType = "isDesktop";
+    }else{
+      // If it doesn't match either mobile or desktop, set deviceType to "undefined"
+      deviceType = "undefined";
+    }
            
+    // Hash the user's password
     const hashPassword = await bcrypt.hash(password, 12);
 
+    // Check if the username is already in use in the Temp collection
     const tempUsername = await Temp.exists({'value.username': { $eq: username }});
 
     if(tempUsername){
@@ -81,29 +110,34 @@ export default async function registerController(req, res) {
       throw error;
     }
 
-    //generate a UUID
+    // Generate a UUID and a JWT for email verification
     const uuid = uuidv4();
-    
     const verificationToken = jwt.sign({uuid}, process.env.JWT_SECRET, { expiresIn: '15m' });
 
-    // Save the user data temporarily in Redis with a 15 minute expiry
+    // Temporarily store the user's data in Redis with a 15 minute expiry
+    // Then send a verification email to the user
     await setTempMemory(uuid, {
         ip,
+        userAgent,
+        browser,
+        operatingSystem,
+        deviceType,
         firstName,
         lastName,
         email,
         username,
         password: hashPassword
     }, 60 * 15).then(() => {
-        // Send the email with the link to verification
         sendVerifyMail(email, verificationToken, username);
     }).catch(err => {
         throw err;
     });
 
+    // If everything is successful, return a 200 status code and a success message
     return res.status(200).json({message: "Waiting for you to verify with link sended to your email"})
 
   } catch (err) {
+    // If the username is already taken, suggest a new one by calling the generateUniqueUsername function
     if (err.errors.username) {
       const newUsername = await generateUniqueUsername(username);
       return res
@@ -113,6 +147,7 @@ export default async function registerController(req, res) {
           newUsername,
         });
     }
+    // If there's any other error, return a 401 status code and the error message
     return res.status(401).json({ message: err });
   }
 }
