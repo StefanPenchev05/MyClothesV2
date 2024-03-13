@@ -55,13 +55,15 @@ export default async function registerController(req, res) {
   }
 
   // Check if password and username are the same or if password contains the username
-  if (password === username) {
+  if (password && username && password === username) {
     inputErrors.push("The password and username cannot be the same");
   }
 
-  if (password.replace(/[^a-zA-Z]+/g, "").includes(username.replace(/[^a-zA-Z]+/g, ""))) {
+  if (password && username && password.replace(/[^a-zA-Z]+/g, "").includes(username.replace(/[^a-zA-Z]+/g, ""))) {
     inputErrors.push("Password should not contain the username");
   }
+
+  console.log(useragent.parse(req.headers['user-agent']));
 
   // If there are any validation errors, return a 400 status code and the error messages
   if (inputErrors.length > 0) {
