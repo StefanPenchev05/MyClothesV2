@@ -5,7 +5,13 @@ import { Temp } from "../../models/Temp.js";
 import { getIO } from "../../sockets/index.js";
 import { Settings } from "../../models/Settings.js";
 
-export default async function verifyUser(req, res) {
+/**
+ * Verifies a newly registered user.
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ */
+
+export default async function verifyRegisterUser(req, res) {
   try {
     // Extract the token from the request parameters
     const verificationToken = req.params.token;
@@ -90,4 +96,15 @@ export default async function verifyUser(req, res) {
     // If an error occurred, log the error and send an error response
     return res.status(500).json({ message: "An error occurred" });
   }
+}
+
+/**
+ * 
+ * @param {Request} req 
+ * @param {Response} res 
+ */
+
+export function verify2FA(req,res){
+  const { code } = req.body;
+
 }

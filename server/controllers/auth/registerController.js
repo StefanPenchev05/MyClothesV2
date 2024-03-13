@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid"
-import useragent from "useragent"
 
 import setTempMemory from "../../utils/mongoTempMemoryService.js"
-import sendVerifyMail from "../../utils/emailService.js";
+import sendMail from "../../utils/emailService.js";
+import { generateTemplate } from "../../utils/emailTemplateManager.js";
 
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
@@ -104,8 +104,10 @@ export default async function registerController(req, res) {
         email,
         username,
         password: hashPassword
-    }, 60 * 15).then(() => {
-        sendVerifyMail(email, verificationToken, username);
+    }, 60 * 15).then(async() => {
+        const emailTemplate = await generateTemplate("verifyRegisterUser", {verificationToken, username})
+
+        sendMail(email, "User Verification", emailTemplate);
     }).catch(err => {
         throw err;
     });
