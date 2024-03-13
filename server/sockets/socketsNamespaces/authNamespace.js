@@ -1,4 +1,5 @@
 import { Namespace } from "socket.io";
+import { decrypt } from "../../utils/securityUtils.js";
 
 /** 
  * Initializes the /auth namespace.
@@ -12,8 +13,9 @@ export default function initializeAuthNamespace(namespace) {
             socket.join(userId);
         });
 
-        socket.on("login/2FA/:token", (token) => {
-
+        socket.on("login/2FA/", (encryptedUserId) => {
+            const decryptedUserId = decrypt(encryptedUserId);
+            socket.join(decryptedUserId);
         })
     });
 }
