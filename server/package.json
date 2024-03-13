@@ -7,12 +7,14 @@
   "scripts": {
     "test": "jest",
     "build": "babel ./ -d dist --ignore node_modules",
+    "build:css": "npx tailwindcss -i ./main.css -o ./emailTemplates/output.css --watch",
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@maizzle/framework": "^4.8.2",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
@@ -36,11 +38,11 @@
     "@babel/cli": "^7.23.9",
     "@babel/preset-env": "^7.24.0",
     "babel-jest": "^29.7.0",
+    "dotenv": "^16.4.5",
     "jest": "^29.7.0",
-    "nodemon": "^3.1.0",
-    "supertest": "^6.3.4",
-    "nodemailer": "^6.9.11",
     "morgan": "^1.10.0",
-    "dotenv": "^16.4.5"
+    "nodemailer": "^6.9.11",
+    "nodemon": "^3.1.0",
+    "supertest": "^6.3.4"
   }
 }

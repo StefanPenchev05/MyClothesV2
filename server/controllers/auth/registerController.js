@@ -1,10 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid"
-import useragent from "useragent"
 
 import setTempMemory from "../../utils/mongoTempMemoryService.js"
-import sendVerifyMail from "../../utils/emailService.js";
+import sendMail from "../../utils/emailService.js";
 
 import { User } from "../../models/User.js";
 import { Validator } from "../../utils/validator.js";
@@ -104,8 +103,10 @@ export default async function registerController(req, res) {
         email,
         username,
         password: hashPassword
-    }, 60 * 15).then(() => {
-        sendVerifyMail(email, verificationToken, username);
+    }, 60 * 15).then(async() => {
+        const emailTemplate = "<h1>";
+
+        sendMail(email, "User Verification", emailTemplate);
     }).catch(err => {
         throw err;
     });
@@ -120,7 +121,7 @@ export default async function registerController(req, res) {
 
   } catch (err) {
     // If the username is already taken, suggest a new one by calling the generateUniqueUsername function
-    if (err.errors.username) {
+    if (err.errors && err.errors.username) {
       const newUsername = await generateUniqueUsername(username);
       return res
         .status(401)
