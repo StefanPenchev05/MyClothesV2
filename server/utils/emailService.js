@@ -1,38 +1,40 @@
 import nodemailer from "nodemailer"
 
 /**
- * This fucntion sends an email for verifying when registration
+ * This function sends an email using the provided parameters.
+ * It's designed to be reusable, so you can use it to send different types of emails.
  * 
- * @param {string} email 
- * @param {string} token 
+ * @param {string} email - The recipient's email address.
+ * @param {string} subject - The subject line of the email.
+ * @param {string} html - The HTML body of the email.
+ * 
+ * @returns {void}
  */
-
-export default function sendVerifyMail(email, token, username){
+export default function sendMail(email, subject, html){
     try {
-        // Define email options, including sender, recipient, subject, and message body
+        // Define the options for the email, including the sender's email address,
+        // the recipient's email address, the subject line, and the HTML body.
         const mailOptions = {
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: `Verify Email for username: ${username}`,
-            html: `
-                <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; font-family: Arial, sans-serif;">
-                    <h2 style="text-align: center; color: #333; font-size: 24px;">Welcome, ${username}!</h2>
-                    <p style="color: #555; font-size: 16px;">Please verify your email address by clicking the link below:</p>
-                    <a href="https://localhost:3000/auth/verify/${token}" style="display: inline-block; margin-top: 20px; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Verify Email</a>
-                </div> 
-            `,
+            from: process.env.NODEMAILER_EMAIL, // Sender's email address
+            to: email, // Recipient's email address
+            subject, // Subject line
+            html, // HTML body
         };
 
-        // Create a transporter for sending emails using nodemailer
+        // Create a transporter for sending emails. This uses the 'gmail' service,
+        // but you can replace this with any email service that is supported by nodemailer.
+        // The authentication for the email service is provided by environment variables.
         const transporter = nodemailer.createTransport({
-            service: 'gmail',             // Email service provider
+            service: 'gmail', // Email service provider
             auth: {
-                user: process.env.NODEMAILER_EMAIL,  // Sender's email address
+                user: process.env.NODEMAILER_EMAIL, // Sender's email address
                 pass: process.env.NODEMAILER_PASSWORD // Sender's email password
             }
         });
 
-        // Send the email using the configured transporter
+        // Use the transporter to send the email with the defined options.
+        // If there's an error during sending, it will throw an error.
+        // Otherwise, it will return the response from the email service.
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
                 throw new Error("Error during sending email");
@@ -41,6 +43,7 @@ export default function sendVerifyMail(email, token, username){
             return info.response;
         });
     } catch (err) {
+        // If there's an error at any point in the function, it will be thrown so it can be handled by the caller.
         throw err;
     }
 }
