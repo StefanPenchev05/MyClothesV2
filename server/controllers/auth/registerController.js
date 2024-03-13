@@ -111,7 +111,12 @@ export default async function registerController(req, res) {
     });
 
     // If everything is successful, return a 200 status code and a success message
-    return res.status(200).json({message: "Waiting for you to verify with link sended to your email"})
+    // and tells the client to await for veriification sent via email
+    // and the uuid is what room to join the socket
+    return res.status(200).json({
+      awaitForVerify: true, 
+      room: uuid, 
+      message: "Waiting for you to verify with link sended to your email"});
 
   } catch (err) {
     // If the username is already taken, suggest a new one by calling the generateUniqueUsername function
