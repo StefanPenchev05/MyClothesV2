@@ -1,4 +1,15 @@
+import fs from "fs"
+import path from "path"
 import nodemailer from "nodemailer"
+import { fileURLToPath } from "url";
+
+function getHtmlTemplate(htmlTemplate){
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const templatePath = path.join(__dirname, `../../maizzle/build_production/${htmlTemplate}.html`);
+    const html = fs.readFileSync(templatePath, 'utf8');
+    return html;
+}
 
 /**
  * This function sends an email using the provided parameters.
@@ -10,7 +21,7 @@ import nodemailer from "nodemailer"
  * 
  * @returns {void}
  */
-export default function sendMail(email, subject, html){
+export default function sendMail(email, subject, htmlTemplate){
     try {
         // Define the options for the email, including the sender's email address,
         // the recipient's email address, the subject line, and the HTML body.
@@ -18,7 +29,7 @@ export default function sendMail(email, subject, html){
             from: process.env.NODEMAILER_EMAIL, // Sender's email address
             to: email, // Recipient's email address
             subject, // Subject line
-            html, // HTML body
+            html: getHtmlTemplate(htmlTemplate), // HTML body
         };
 
         // Create a transporter for sending emails. This uses the 'gmail' service,

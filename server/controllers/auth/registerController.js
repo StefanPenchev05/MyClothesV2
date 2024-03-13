@@ -104,9 +104,8 @@ export default async function registerController(req, res) {
         username,
         password: hashPassword
     }, 60 * 15).then(async() => {
-        const emailTemplate = "<h1>";
-
-        sendMail(email, "User Verification", emailTemplate);
+        // Sending email to the user with test template
+        sendMail(email, "User Verification", "promotional");
     }).catch(err => {
         throw err;
     });
